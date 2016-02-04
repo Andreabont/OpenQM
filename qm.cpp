@@ -34,6 +34,12 @@
 #include <algorithm>
 #include <sstream>
 
+/**
+ * @brief Execute QM step
+ * 
+ * @param implicantList List of implicants
+ * @return stepResult
+ */
 stepResult makeQMStep(std::vector<Implicant> implicantList){
     
     // stepResult
@@ -98,6 +104,14 @@ stepResult makeQMStep(std::vector<Implicant> implicantList){
     
 }
 
+/**
+ * @brief Execute QM
+ * 
+ * @param implicantList List of implicants
+ * @param dontCareList List of don't care
+ * @return std::vector< Implicant, std::allocator< void > >
+ */
+
 std::vector< Implicant > makeQM(const std::vector<Implicant>& implicantList, const std::vector<Implicant>& dontCareList) {
 
     std::vector<Implicant> solution;
@@ -135,6 +149,12 @@ std::vector< Implicant > makeQM(const std::vector<Implicant>& implicantList, con
 
 }
 
+/**
+ * @brief Generate boolean expression from implicant list (solution of QM)
+ * 
+ * @param solution Implicant list
+ * @return std::string
+ */
 std::string getBooleanExpression(std::vector<Implicant> solution){
 
     std::stringstream result;

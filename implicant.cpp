@@ -31,6 +31,13 @@
 #include <sstream>
 #include "implicant.h"
 
+/**
+ * @brief Real Constructor
+ * 
+ * @param other Implicant formatted as string
+ * @param covr Coverage of implicant (optional)
+ * @return void
+ */
 void Implicant::init(const std::string& other, const std::set<int>& covr) {
     
     if(other.find_first_not_of("01-") != std::string::npos) {
@@ -46,6 +53,11 @@ void Implicant::init(const std::string& other, const std::set<int>& covr) {
 
 }
 
+/**
+ * @brief Generate coverage for new implicant.
+ * 
+ * @return void
+ */
 void Implicant::generateCoverage() {
     
     if(this->implicant_str.find_first_of("-") != std::string::npos) {
@@ -68,8 +80,15 @@ void Implicant::generateCoverage() {
     this->coverage = {result};
 }
 
+/**
+ * @brief Generate list of all base implicants (recursive)
+ *        The algorithm use recursion for generate the tree of all possibile implicants.
+ * @param pos Cursor that indicate the current bit (internal use, don't touch)
+ * @param step Buffer that save the implicant generated in a branch
+ * @return std::vector< Implicant, std::allocator< void > >
+ */
 std::vector<Implicant> Implicant::getExplodedList(int pos, std::string step) {
-
+    
     if(pos > this->implicant_str.size()-1) {
         std::vector<Implicant> ret = {step};
         return ret;
@@ -87,27 +106,58 @@ std::vector<Implicant> Implicant::getExplodedList(int pos, std::string step) {
     
 }
 
+/**
+ * @brief Constructor from std::string
+ * 
+ * @param other String
+ * @param covr Coverage
+ */
 Implicant::Implicant(const std::string& other, const std::set<int>& covr) {
     if(other != "") init(other, covr);
 }
 
+/**
+ * @brief Constructor from const char*
+ * 
+ * @param other_str const char*
+ * @param covr Coverage
+ */
 Implicant::Implicant(const char* other_str, const std::set<int>&  covr) {
     std::string other = other_str;
     if(other != "") init(other, covr);
 }
 
+
+/**
+ * @brief Assignment operator
+ * 
+ * @param other Implicant&
+ * @return Implicant&
+ */
 Implicant& Implicant::operator=(const Implicant& other) {
     this->implicant_str = other.implicant_str;
     this->coverage = other.coverage;
     return *this;
 }
 
+/**
+ * @brief Assignment operator
+ * 
+ * @param other std::string
+ * @return Implicant&
+ */
 Implicant& Implicant::operator=(const std::string& other) {
     this->implicant_str = other;
     this->coverage = {};
     return *this;
 }
 
+/**
+ * @brief Operator that execute the reduction.
+ * 
+ * @param other Implicant&
+ * @return Implicant
+ */
 Implicant Implicant::operator+(const Implicant& other) {
 
     Implicant result("", {});
@@ -144,10 +194,23 @@ Implicant Implicant::operator+(const Implicant& other) {
     return result;
 }
 
+
+/**
+ * @brief Equality operator
+ * 
+ * @param other Implicant&
+ * @return bool
+ */
 bool Implicant::operator==(const Implicant& other) const {
     return this->implicant_str == other.implicant_str && this->coverage == other.coverage;
 }
 
+/**
+ * @brief Inequality operator
+ * 
+ * @param other Implicant&
+ * @return bool
+ */
 bool Implicant::operator!=(const Implicant& other) const {
     return this->implicant_str != other.implicant_str || this->coverage != other.coverage;
 }
@@ -156,14 +219,29 @@ bool Implicant::operator<(const Implicant& other) const {
     return this->implicant_str < other.implicant_str;
 }
 
+/**
+ * @brief Return the numbers of '1' in the implicant
+ * 
+ * @return int
+ */
 int Implicant::getOneCount() const {
     return std::count(this->implicant_str.begin(), this->implicant_str.end(), '1');
 }
 
+/**
+ * @brief Return the implicant as a string
+ * 
+ * @return std::string
+ */
 std::string Implicant::getStr() const {
     return this->implicant_str;
 }
 
+/**
+ * @brief Return the coverage as a string
+ * 
+ * @return std::string
+ */
 std::string Implicant::getStrCoverage() const {
     std::stringstream result;
     for(auto i = this->coverage.begin(); i != this->coverage.end(); ++i) {
@@ -173,10 +251,23 @@ std::string Implicant::getStrCoverage() const {
     return result.str();
 }
 
+
+/**
+ * @brief Return the coverage as a set of int
+ * 
+ * @return std::set< int, std::less, std::allocator< void > >
+ */
 std::set<int> Implicant::getCoverage() const {
     return this->coverage;
 }
 
+/**
+ * @brief Flow operator for print implicant as a string
+ * 
+ * @param os ostream
+ * @param other Implicant&
+ * @return std::ostream&
+ */
 std::ostream &operator<<(std::ostream &os, const Implicant& other) { 
     return os << other.getStr();
 }
