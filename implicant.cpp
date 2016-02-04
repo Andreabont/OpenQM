@@ -1,13 +1,13 @@
 /**
  * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * -
  *
- * Name        :  LNS
+ * Name        :  OpenQM
  * Author      :  Andrea Bontempi
  * Description :  Logic Network Synthesizer
  *
  * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * -
  *
- * This file is part of the project Riddle.
+ * This file is part of OpenQM.
  *
  *  LNS is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
