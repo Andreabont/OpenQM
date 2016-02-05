@@ -40,14 +40,13 @@ int main() try {
     string input;
     
     cout << "Insert implicants followed by return. Write 'q' or 'quit' to exit..." << endl;
-    
-    cin >> input;
-    
-    while (!(input == "quit" || input == "q")) try {
+      
+    while (cin >> input && !(input == "quit" || input == "q")) try {
 
         Implicant imp = input;
         list.push_back(imp);
-        cin >> input;
+        
+        cout << "\e[A" << imp << " (" << imp.getStrCoverage() << ")" << endl;
         
     } catch (std::logic_error e) {
         cerr << "Error: " << e.what() << endl;
