@@ -1,24 +1,24 @@
 Fork of [@Andreabont's implementation](https://github.com/Andreabont/OpenQM) of [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm).
 
-Build
-=====
-
-Installing the dependencies
+Dependencies
 ---------------------------
-- cmake
-- libboost (system, test, programoptions)
-
-Compile!
+- `cmake`
+- Boost (`system`, `test`, `program-options`)
+```sh
+sudo apt install cmake libboost-dev libboost-program-options1.65.1 libboost-program-options-dev libboost-test-dev libboost-system-dev
+```
+Build
 --------
 ```sh
 git clone https://github.com/fourlex/OpenQM
+cd OpenQM
 mkdir build
 cd build
 cmake ..
 make
 ```
 
-Usage in CLI
+CLI interface
 ============
 
 ```bash
@@ -62,43 +62,4 @@ Data is read from stdin. Options::
 1-110-
 10-10-
 11-1-0
-```
-
-Usage as library
-================
-
-Implicants
-----------
-
-```cpp
-#include <vector>
-#include "implicant.h"
-
-int main() {
-
-    Implicant singleImplicant = "0101";
-
-    std::vector<Implicant> listOfImplicants = {
-        "0001",
-        "1001",
-        "1011",
-        "1100",
-        "1101",
-        "1110",
-        "1111"
-    };
-
-}
-```
-
-Apply Quine–McCluskey
----------------------
-
-```cpp
-# Get the QM solution
-std::vector<Implicant> solution = makeQM(implicant_list, dont_care_list);
-
-# Get the boolean expression
-std:string expression = getBooleanExpression(solution);
-
 ```
