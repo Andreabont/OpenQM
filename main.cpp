@@ -35,14 +35,18 @@
 #include "implicant.h"
 #include "qm.h"
 
-using namespace std;
 namespace po = boost::program_options;
+using std::uintmax_t;
+using std::cout;
+using std::endl;
+using std::string;
+using std::runtime_error;
 
-std::string
-num2conjstr(std::uintmax_t len, std::uintmax_t n)
+string
+num2conjstr(uintmax_t len, uintmax_t n)
 {
-    std::string s(len, '0');
-    std::uintmax_t i = 0;
+    string s(len, '0');
+    uintmax_t i = 0;
     while (n != 0) {
         if (n % 2 == 1)
             s[len - 1 - i] = '1';
@@ -52,10 +56,10 @@ num2conjstr(std::uintmax_t len, std::uintmax_t n)
     return s;
 }
 
-std::uintmax_t
-binpow(std::uintmax_t a, std::uintmax_t n)
+uintmax_t
+binpow(uintmax_t a, uintmax_t n)
 {
-    std::uintmax_t res = 1;
+    uintmax_t res = 1;
     while (n != 0) {
         if (n % 2 == 1)
             res *= a;
@@ -69,14 +73,14 @@ int
 main(int argc, char **argv)
 try {
     // Parse args and print help if needed
-    std::string mode;
-    po::options_description desc("Data is being read from stdin. Allowed options:");
+    string input_format;
+    po::options_description desc("Data is read from stdin. Options:");
     desc.add_options()
         ("help,h", "print this help message")
-        ("input-format,f", po::value<std::string>(&mode)->default_value("vector"),
-            "specify input function definition format. Could be 'vector',"\
-            "'charset' or 'implicants'")
-        ("num-var,n", po::value<std::uintmax_t>(), "specify number of function variables. required by "\
+        ("input-format,f", po::value<string>(&input_format)->default_value("vector"),
+            "specify input format of function definition. can be 'vector',"\
+            "'charset' or 'implicants' (see README.md)")
+        ("num-var,n", po::value<uintmax_t>(), "specify number of function variables. required by "\
             "'vector' input format")
     ;
     po::variables_map vm;
@@ -89,41 +93,48 @@ try {
 
     // create a list of implicants according to input format
     std::vector<Implicant> implicants;
-    if (mode == "vector") {
+
+    if (input_format == "vector") {
         if (vm.count("num-var") == 0)
-            throw std::runtime_error("the number of function variables is not specified");
-        std::uintmax_t num_var = vm["num-var"].as<std::uintmax_t>();
-        std::uintmax_t cnt_read = 0;
-        std::uintmax_t vec_len = binpow(2, num_var);
-        std::uintmax_t cnt_remain = vec_len;
+            throw runtime_error("the number of function variables is not specified");
+        uintmax_t num_var = vm["num-var"].as<uintmax_t>();
+        uintmax_t cnt_read = 0;
+        uintmax_t vec_len = binpow(2, num_var);
+        uintmax_t cnt_remain = vec_len;
         while (int ch = getchar()) {
             if (isspace(ch))
                 continue;
             if (EOF == ch)
                 break;
             if (0 == cnt_remain)
-                 throw std::runtime_error("vector length does not correspond to number of variables");
+                 throw runtime_error("vector length does not correspond to number of variables");
             if ('1' == ch) {
                 Implicant imp(num2conjstr(num_var, cnt_read));
                 implicants.push_back(imp);
             } else if ('0' != ch) {
-                throw std::runtime_error("found incorrect symbol in function vector");
+                throw runtime_error("found incorrect symbol in function vector");
             }
             --cnt_remain;
             ++cnt_read;
         }
         if (cnt_remain != 0)
-            throw std::runtime_error("vector length does not correspond to number of variables");
-    } else if (mode == "charset") {
-        std::string str;
+            throw runtime_error("vector length does not correspond to number of variables");
+    }
+
+    else if (input_format == "charset") {
+        string str;
         while (std::cin >> str)
             implicants.push_back(Implicant(str));
-    } else if (mode == "implicants") {
-        std::string str;
+    }
+
+    else if (input_format == "implicants") {
+        string str;
         while (std::cin >> str)
             implicants.push_back(Implicant(str));
-    } else {
-        throw std::runtime_error("unknown input format");
+    }
+
+    else {
+        throw runtime_error("unknown input format");
     }
 
     // TODO: is it necessary?
@@ -134,11 +145,11 @@ try {
     // solve
     std::vector<Implicant> solution = makeQM(implicants, {});
     for (const auto & imp : solution) {
-        std::cout << imp << std::endl;
+        cout << imp << endl;
     }
     
     return EXIT_SUCCESS;
 } catch (std::exception &e) {
-    std::cout << "error: " << e.what() << std::endl;
+    cout << "error: " << e.what() << endl;
     return EXIT_FAILURE;
 }
