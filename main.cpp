@@ -30,11 +30,30 @@
 #include <vector>
 #include "implicant.h"
 #include "qm.h"
+#include <boost/program_options.hpp>
 
 using namespace std;
+namespace po = boost::program_options;
 
-int main() try {
+int main(int argc, char **argv) try {
 
+    po::options_description desc("Data is being read from stdin. Allowed options");
+    desc.add_options()
+        ("help", "print this help message")
+        ("charset", "define function by characteristic set")
+        ("implicants", "define function by implicants")
+        ("string", "define function by value string")
+    ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        return 0;
+    }
+      
     std::vector<Implicant> list;
 
     string input;

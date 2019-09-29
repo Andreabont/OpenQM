@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <cmath>
 
 class Implicant {
   

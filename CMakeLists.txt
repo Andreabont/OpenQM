@@ -6,6 +6,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
 
+# Find boost::program_options
+find_package(Boost COMPONENTS program_options REQUIRED)
+include_directories (${Boost_INCLUDE_DIRS})
+
 # Uncomment to enable compiler warning
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -Weffc++") 
 
@@ -23,3 +27,4 @@ ${PROJECT_SOURCE_DIR}/main.cpp
 )
 
 add_executable(OpenQM ${LNS_SRCS})
+TARGET_LINK_LIBRARIES(OpenQM ${Boost_LIBRARIES})

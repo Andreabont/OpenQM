@@ -155,30 +155,25 @@ std::vector< Implicant > makeQM(const std::vector<Implicant>& implicantList, con
  * @param solution Implicant list
  * @return std::string
  */
-std::string getBooleanExpression(std::vector<Implicant> solution){
-
+std::string getBooleanExpression(std::vector<Implicant> solution) {
     std::stringstream result;
-    
-    std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
-    
-    for(auto i = solution.begin(); i != solution.end(); ++i) {
+    for (auto i = solution.begin(); i != solution.end(); ++i) {
         std::string implStr = i->getStr();
-        for(int charPos = 0; charPos <= implStr.size(); ++charPos) {
-            switch(implStr[charPos]) {
+        for (std::string::size_type charPos = 0; charPos <= implStr.size(); ++charPos) {
+            switch (implStr[charPos]) {
                 case '0':
-                    result << alphabet[charPos] << "\'"; 
+                    result << '(' << charPos << "\')"; 
                     break;
                 case '1':
-                    result << alphabet[charPos]; 
+                    result << '(' << charPos << ')';
                     break;
                 default:
                     continue;
             }
         }
-        if(i != --solution.end()) result << " + ";
+        if (i != --solution.end())
+            result << " ";
     }
-    
     return result.str();
-    
 }
 
