@@ -28,68 +28,117 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <boost/program_options.hpp>
+#include <cstdio>
+#include <sstream>
+
 #include "implicant.h"
 #include "qm.h"
-#include <boost/program_options.hpp>
 
 using namespace std;
 namespace po = boost::program_options;
 
-int main(int argc, char **argv) try {
+std::string
+num2conjstr(std::uintmax_t len, std::uintmax_t n)
+{
+    std::string s(len, '0');
+    std::uintmax_t i = 0;
+    while (n != 0) {
+        if (n % 2 == 1)
+            s[len - 1 - i] = '1';
+        i++;
+        n /= 2;
+    }
+    return s;
+}
 
-    po::options_description desc("Data is being read from stdin. Allowed options");
+std::uintmax_t
+binpow(std::uintmax_t a, std::uintmax_t n)
+{
+    std::uintmax_t res = 1;
+    while (n != 0) {
+        if (n % 2 == 1)
+            res *= a;
+        a *= a;
+        n /= 2;
+    }
+    return res;
+}
+
+int
+main(int argc, char **argv)
+try {
+    // Parse args and print help if needed
+    std::string mode;
+    po::options_description desc("Data is being read from stdin. Allowed options:");
     desc.add_options()
-        ("help", "print this help message")
-        ("charset", "define function by characteristic set")
-        ("implicants", "define function by implicants")
-        ("string", "define function by value string")
+        ("help,h", "print this help message")
+        ("input-format,f", po::value<std::string>(&mode)->default_value("vector"),
+            "specify input function definition format. Could be 'vector',"\
+            "'charset' or 'implicants'")
+        ("num-var,n", po::value<std::uintmax_t>(), "specify number of function variables. required by "\
+            "'vector' input format")
     ;
-
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-
     if (vm.count("help")) {
         cout << desc << "\n";
         return 0;
     }
-      
-    std::vector<Implicant> list;
 
-    string input;
-    
-    cout << "Insert implicants followed by return. Write 'q' or 'quit' to exit..." << endl;
-      
-    while (cin >> input && !(input == "quit" || input == "q")) try {
-
-        Implicant imp = input;
-        list.push_back(imp);
-        
-        cout << "\e[A" << imp << " (" << imp.getStrCoverage() << ")" << endl;
-        
-    } catch (std::logic_error e) {
-        cerr << "Error: " << e.what() << endl;
-        break;
-    } 
-    
-    if(list.empty()) {
-        cerr << "Error: No implicants..." << endl;
-        return EXIT_FAILURE;
+    // create a list of implicants according to input format
+    std::vector<Implicant> implicants;
+    if (mode == "vector") {
+        if (vm.count("num-var") == 0)
+            throw std::runtime_error("the number of function variables is not specified");
+        std::uintmax_t num_var = vm["num-var"].as<std::uintmax_t>();
+        std::uintmax_t cnt_read = 0;
+        std::uintmax_t vec_len = binpow(2, num_var);
+        std::uintmax_t cnt_remain = vec_len;
+        while (int ch = getchar()) {
+            if (isspace(ch))
+                continue;
+            if (EOF == ch)
+                break;
+            if (0 == cnt_remain)
+                 throw std::runtime_error("vector length does not correspond to number of variables");
+            if ('1' == ch) {
+                Implicant imp(num2conjstr(num_var, cnt_read));
+                implicants.push_back(imp);
+            } else if ('0' != ch) {
+                throw std::runtime_error("found incorrect symbol in function vector");
+            }
+            --cnt_remain;
+            ++cnt_read;
+        }
+        if (cnt_remain != 0)
+            throw std::runtime_error("vector length does not correspond to number of variables");
+    } else if (mode == "charset") {
+        std::string str;
+        while (std::cin >> str)
+            implicants.push_back(Implicant(str));
+    } else if (mode == "implicants") {
+        std::string str;
+        while (std::cin >> str)
+            implicants.push_back(Implicant(str));
+    } else {
+        throw std::runtime_error("unknown input format");
     }
-    
-    std::vector<Implicant> solution = makeQM(list, {});
-    
-    cout << endl << "Solution:" << endl;
 
-    for(Implicant i : solution) {
-        cout << i << " (" << i.getStrCoverage() << ")" << endl;
+    // TODO: is it necessary?
+    if (implicants.empty()) {
+        return EXIT_SUCCESS;
     }
 
-    cout << endl << "Expression: " << getBooleanExpression(solution) << endl;
+    // solve
+    std::vector<Implicant> solution = makeQM(implicants, {});
+    for (const auto & imp : solution) {
+        std::cout << imp << std::endl;
+    }
     
     return EXIT_SUCCESS;
-
-}  catch (std::logic_error e) {
-    cerr << "Fatal error: " << e.what() << endl;
+} catch (std::exception &e) {
+    std::cout << "error: " << e.what() << std::endl;
     return EXIT_FAILURE;
-} 
+}

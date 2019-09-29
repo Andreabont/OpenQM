@@ -7,3 +7,4 @@ build/*
 src/*
 pkg/*
 nbproject/*
+CMakeLists.txt.user
