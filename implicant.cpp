@@ -30,6 +30,7 @@
 #include <cstdlib>
 #include <sstream>
 #include "implicant.h"
+#include "utils.h"
 
 /**
  * @brief Real Constructor
@@ -40,14 +41,14 @@
  */
 void Implicant::init(const std::string& other, const std::set<int>& covr) {
     
-    if(other.find_first_not_of("01-") != std::string::npos) {
+    if (other.find_first_not_of("01-") != std::string::npos) {
         throw std::logic_error("'"+other+"' isn't an implicant!");
     }
 
     this->implicant_str = other;
     this->coverage = covr;
     
-    if(covr.size() == 0) {
+    if (covr.size() == 0) {
         this->generateCoverage();
     }
 
@@ -60,9 +61,9 @@ void Implicant::init(const std::string& other, const std::set<int>& covr) {
  */
 void Implicant::generateCoverage() {
     
-    if(this->implicant_str.find_first_of("-") != std::string::npos) {
+    if (this->implicant_str.find_first_of("-") != std::string::npos) {
         // Implicant is a reduction of other implicants
-        for(Implicant other : this->getExplodedList()) {
+        for (const Implicant &other : this->getExplodedList()) {
             auto other_cov = other.getCoverage();
             std::set_union(this->coverage.begin(), this->coverage.end(), other_cov.begin(), other_cov.end(), std::inserter(this->coverage, this->coverage.begin()));
         }
@@ -71,9 +72,9 @@ void Implicant::generateCoverage() {
     
     int index = 0;
     int result = 0;
-    for(auto i = --this->implicant_str.end(); i >= this->implicant_str.begin(); i--) {
-        if(*i == '1') {
-            result += std::pow(2,index);
+    for (auto i = --this->implicant_str.end(); i >= this->implicant_str.begin(); i--) {
+        if (*i == '1') {
+            result += binpow(2, index);
         }
         index++;
     }
@@ -87,14 +88,14 @@ void Implicant::generateCoverage() {
  * @param step Buffer that save the implicant generated in a branch
  * @return std::vector< Implicant, std::allocator< void > >
  */
-std::vector<Implicant> Implicant::getExplodedList(int pos, std::string step) {
+std::vector<Implicant> Implicant::getExplodedList(int pos, const std::string &step) {
     
-    if(pos > this->implicant_str.size()-1) {
+    if (pos > this->implicant_str.size() - 1) {
         std::vector<Implicant> ret = {step};
         return ret;
     }
     
-    if(this->implicant_str[pos] == '-') {
+    if (this->implicant_str[pos] == '-') {
         std::vector<Implicant> a = this->getExplodedList(pos+1, step+'0');
         std::vector<Implicant> b = this->getExplodedList(pos+1, step+'1');
         std::vector<Implicant> ret;
@@ -162,11 +163,11 @@ Implicant Implicant::operator+(const Implicant& other) {
 
     Implicant result("", {});
 
-    if(this->implicant_str.size() != other.implicant_str.size()) {
+    if (this->implicant_str.size() != other.implicant_str.size()) {
         throw std::logic_error("Can't reduce '"+other.implicant_str+"' and '"+this->implicant_str+"', they have different size!");
     }
     
-    if(abs(this->getOneCount() - other.getOneCount()) > 1) {
+    if (abs(this->getOneCount() - other.getOneCount()) > 1) {
         return result;
     }
 
@@ -178,8 +179,8 @@ Implicant Implicant::operator+(const Implicant& other) {
         if(this->implicant_str[i] == other.implicant_str[i]) {
             new_implicant += this->implicant_str[i];
         } else {
-            if(!found_different && !(this->implicant_str[i] == '-' || other.implicant_str[i] == '-')) {
-	        found_different = true;
+            if (!found_different && !(this->implicant_str[i] == '-' || other.implicant_str[i] == '-')) {
+                found_different = true;
                 new_implicant += '-';
             } else {
                 return result;
@@ -246,7 +247,7 @@ std::string Implicant::getStrCoverage() const {
     std::stringstream result;
     for(auto i = this->coverage.begin(); i != this->coverage.end(); ++i) {
         result << *i;
-        if(i != --this->coverage.end()) result << ", ";
+        if (i != --this->coverage.end()) result << ", ";
     }
     return result.str();
 }

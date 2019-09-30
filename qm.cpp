@@ -25,14 +25,14 @@
  * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * -
  */
 
-#include "qm.h"
-#include "implicant.h"
-
 #include <vector>
 #include <map>
 #include <set>
 #include <algorithm>
 #include <sstream>
+
+#include "qm.h"
+#include "implicant.h"
 
 /**
  * @brief Execute QM step
@@ -148,32 +148,3 @@ std::vector< Implicant > makeQM(const std::vector<Implicant>& implicantList, con
     return solution;
 
 }
-
-/**
- * @brief Generate boolean expression from implicant list (solution of QM)
- * 
- * @param solution Implicant list
- * @return std::string
- */
-std::string getBooleanExpression(std::vector<Implicant> solution) {
-    std::stringstream result;
-    for (auto i = solution.begin(); i != solution.end(); ++i) {
-        std::string implStr = i->getStr();
-        for (std::string::size_type charPos = 0; charPos <= implStr.size(); ++charPos) {
-            switch (implStr[charPos]) {
-                case '0':
-                    result << '(' << charPos << "\')"; 
-                    break;
-                case '1':
-                    result << '(' << charPos << ')';
-                    break;
-                default:
-                    continue;
-            }
-        }
-        if (i != --solution.end())
-            result << " ";
-    }
-    return result.str();
-}
-

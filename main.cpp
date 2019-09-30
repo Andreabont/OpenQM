@@ -34,6 +34,7 @@
 
 #include "implicant.h"
 #include "qm.h"
+#include "utils.h"
 
 namespace po = boost::program_options;
 using std::uintmax_t;
@@ -56,32 +57,21 @@ num2conjstr(uintmax_t len, uintmax_t n)
     return s;
 }
 
-uintmax_t
-binpow(uintmax_t a, uintmax_t n)
-{
-    uintmax_t res = 1;
-    while (n != 0) {
-        if (n % 2 == 1)
-            res *= a;
-        a *= a;
-        n /= 2;
-    }
-    return res;
-}
-
 int
 main(int argc, char **argv)
 try {
     // Parse args and print help if needed
     string input_format;
-    po::options_description desc("Data is read from stdin. Options:");
+    po::options_description desc("OpenQM - boolean function minimizer.\nFunction definition is read from stdin and result is printed to stdout. Options");
     desc.add_options()
         ("help,h", "print this help message")
-        ("input-format,f", po::value<string>(&input_format)->default_value("vector"),
-            "specify input format of function definition. can be 'vector',"\
+        ("input-format,i", po::value<string>(&input_format)->default_value("vector"),
+            "specify input format of function definition. can be 'vector', "\
             "'charset' or 'implicants' (see README.md)")
         ("num-var,n", po::value<uintmax_t>(), "specify number of function variables. required by "\
             "'vector' input format")
+        ("no-print-result", "don't print the resulted formula")
+        ("no-print-number", "don't print the number of implicants in the resulted formula")
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -144,9 +134,14 @@ try {
 
     // solve
     std::vector<Implicant> solution = makeQM(implicants, {});
-    for (const auto & imp : solution) {
-        cout << imp << endl;
-    }
+
+    // print
+    if (vm.count("no-print-number") == 0)
+        cout << solution.size() << endl;
+    if (vm.count("no-print-result") == 0)
+        for (const auto & imp : solution) {
+            cout << imp << endl;
+        }
     
     return EXIT_SUCCESS;
 } catch (std::exception &e) {

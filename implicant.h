@@ -32,6 +32,7 @@
 #include <vector>
 #include <set>
 #include <cmath>
+#include "utils.h"
 
 class Implicant {
   
@@ -56,7 +57,7 @@ public:
     std::string getStrCoverage() const;
     int getOneCount() const;
     std::set<int> getCoverage() const;
-    std::vector<Implicant> getExplodedList(int pos = 0, std::string step = "");
+    std::vector<Implicant> getExplodedList(int pos = 0, const std::string &step = "");
 
 };
 
