@@ -34,117 +34,66 @@
 #include "qm.h"
 #include "implicant.h"
 
-/**
- * @brief Execute QM step
- * 
- * @param implicantList List of implicants
- * @return stepResult
- */
-stepResult makeQMStep(std::vector<Implicant> implicantList){
-    
-    // stepResult
-    stepResult result;
-    
-    // Save list size
-    int implicantListSize = implicantList.size();
-        
-    // Group implicants based on implicant's one numbers
-    std::map<int, std::vector<int>> implicantGroup;
-    
-    // Max one number group
-    int implicantGroupMax = 0;
-    
-    for(int i = 0; i < implicantListSize; ++i) {
-        int oneCount = implicantList[i].getOneCount();
-        implicantGroup[oneCount].push_back(i);
-        if(oneCount > implicantGroupMax) {
-            implicantGroupMax = oneCount;
-        }
+using std::vector;
+
+void
+qm_step(vector<Implicant> &prime, vector<Implicant> &yet_unknown_if_prime,
+        vector<Implicant> &next_step)
+{
+    // make an alias for yet_unknown_if_prime (it is too long to type
+    // but just 'unknown' does not make sense as a parameter name to me
+    vector<Implicant> &unknown = yet_unknown_if_prime;
+
+    // group[i] will contain all implicants with exatcly i ones.
+    // due to if two implicants can be reduced than number of ones
+    // in them differ by 1, we can only do glue attemts for pairs of
+    // implicants from cosequtive groups.
+    int max_num_ones = 0;
+    std::map<int, vector<int>> group;
+    for (int i = 0; i < unknown.size(); ++i) {
+        int num_ones = yet_unknown_if_prime[i].num_ones();
+        group[num_ones].push_back(i);
+        max_num_ones = std::max(num_ones, max_num_ones);
     }
-    
-    // Implicant marked
-    std::set<int> marked;
-    
-    // Combination and reduction of implicants
-    for(int i = 0; i < implicantGroupMax; ++i) {
-        for(int x : implicantGroup[i]) {
-            for(int y : implicantGroup[i+1]) {
-                
-                // Reduce!
-                Implicant temp = implicantList[x] + implicantList[y];
-                
-                // Fail?
-                if(temp.getStr() == "") {
+
+    // combination and reduction of implicants
+    vector<int> was_glued(unknown.size(), false);
+    for (int cur_num_ones = 0; cur_num_ones < max_num_ones; ++cur_num_ones) {
+        for (auto x : group[cur_num_ones]) {
+            for (auto y : group[cur_num_ones + 1]) {
+                Implicant temp = unknown[x] + unknown[y];
+                if (temp.trivial())
                     continue;
-                }
-                
-                // Mark!
-                marked.insert(x);
-                marked.insert(y);            
-                
-                // Save!
-                result.reduced.push_back(temp);
-                
+                was_glued[x] = true;
+                was_glued[y] = true;
+                next_step.push_back(temp);
             }
         }
     }
     
     // Result must me unique
-    std::sort(result.reduced.begin(), result.reduced.end() );
-    result.reduced.erase(std::unique(result.reduced.begin(), result.reduced.end() ), result.reduced.end() );
+    std::sort(next_step.begin(), next_step.end());
+    next_step.erase(std::unique(next_step.begin(), next_step.end()), next_step.end());
     
     // Compile exclude list
-    for(int i = 0; i < implicantListSize; ++i) {
-        if(!marked.count(i)) {
-            result.excluded.push_back(implicantList[i]);
+    for (auto i = 0; i < unknown.size(); ++i) {
+        if (!was_glued[i]) {
+            prime.push_back(unknown[i]);
         }
     }
-    
-    return result;
-    
 }
 
-/**
- * @brief Execute QM
- * 
- * @param implicantList List of implicants
- * @param dontCareList List of don't care
- * @return std::vector< Implicant, std::allocator< void > >
- */
-
-std::vector< Implicant > makeQM(const std::vector<Implicant>& implicantList, const std::vector<Implicant>& dontCareList) {
-
-    std::vector<Implicant> solution;
-    std::vector<Implicant> list = implicantList;
-    
-    list.insert(list.end(), dontCareList.begin(), dontCareList.end());
-    
-    std::set<int> dontCareCoverage;
-    
-    for(Implicant i : dontCareList) {
-        std::set<int> tempCoverage = i.getCoverage();
-        dontCareCoverage.insert(tempCoverage.begin(), tempCoverage.end());
-    }
-    
-    stepResult result;
-
+vector<Implicant>
+make_qm(const vector<Implicant>& implicants)
+{
+    vector<Implicant> prime;
+    vector<Implicant> yet_unknown_if_prime = implicants;
+    vector<Implicant> next_step;
     do {
+        qm_step(prime, yet_unknown_if_prime, next_step);
+        std::swap(next_step, yet_unknown_if_prime);
+        next_step.clear();
+    } while (yet_unknown_if_prime.size() != 0);
 
-        result = makeQMStep(list);
-        list = result.reduced;
-        solution.insert(solution.end(), result.excluded.begin(), result.excluded.end());
-
-    } while(result.reduced.size() != 0);
-    
-    if(dontCareCoverage.size() != 0) { 
-        solution.erase(std::remove_if(solution.begin(), solution.end(), [dontCareCoverage](const Implicant& i) -> bool {
-            std::set<int> check;
-            std::set<int> tempCoverage = i.getCoverage();
-            std::set_difference(tempCoverage.begin(), tempCoverage.end(), dontCareCoverage.begin(), dontCareCoverage.end(), std::inserter(check, check.begin()));
-            return check.size() == 0;
-        }), solution.end());
-    }
-
-    return solution;
-
+    return prime;
 }

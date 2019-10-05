@@ -32,7 +32,6 @@
 #include <vector>
 #include <set>
 #include <cmath>
-#include "utils.h"
 
 class Implicant {
   
@@ -53,9 +52,10 @@ public:
     bool operator==(const Implicant& other) const;
     bool operator!=(const Implicant& other) const;
     bool operator<(const Implicant& other) const;
+    bool trivial() const;
     std::string getStr() const;
     std::string getStrCoverage() const;
-    int getOneCount() const;
+    int num_ones() const;
     std::set<int> getCoverage() const;
     std::vector<Implicant> getExplodedList(int pos = 0, const std::string &step = "");
 

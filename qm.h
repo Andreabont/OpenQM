@@ -33,13 +33,13 @@
 
 #include <vector>
 
-struct stepResult {
+struct StepResult {
     std::vector<Implicant> reduced;
     std::vector<Implicant> excluded;
 };
 
-stepResult makeQMStep(std::vector<Implicant> implicantList);
-std::vector<Implicant> makeQM(const std::vector<Implicant>& implicantList, const std::vector<Implicant>& dontCareList);
+StepResult qm_step(std::vector<Implicant> &implicantList);
+std::vector<Implicant> make_qm(const std::vector<Implicant>& implicants);
 std::string getBooleanExpression(std::vector<Implicant> solution);
 
 #endif // LIBQM_H

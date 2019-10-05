@@ -133,7 +133,7 @@ try {
     }
 
     // solve
-    std::vector<Implicant> solution = makeQM(implicants, {});
+    std::vector<Implicant> solution = make_qm(implicants);
 
     // print
     if (vm.count("no-print-number") == 0)

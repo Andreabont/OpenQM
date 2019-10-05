@@ -167,7 +167,7 @@ Implicant Implicant::operator+(const Implicant& other) {
         throw std::logic_error("Can't reduce '"+other.implicant_str+"' and '"+this->implicant_str+"', they have different size!");
     }
     
-    if (abs(this->getOneCount() - other.getOneCount()) > 1) {
+    if (abs(this->num_ones() - other.num_ones()) > 1) {
         return result;
     }
 
@@ -225,8 +225,14 @@ bool Implicant::operator<(const Implicant& other) const {
  * 
  * @return int
  */
-int Implicant::getOneCount() const {
-    return std::count(this->implicant_str.begin(), this->implicant_str.end(), '1');
+int Implicant::num_ones() const {
+    return std::count(this->implicant_str.begin(), this->implicant_str.end(), '0');
+}
+
+bool
+Implicant::trivial() const
+{
+    return implicant_str == "";
 }
 
 /**
