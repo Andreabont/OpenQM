@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project (test)
+project(test)
 
 # Setup CMake to run tests
 find_package(Boost COMPONENTS unit_test_framework system REQUIRED)
@@ -9,8 +9,9 @@ include_directories (${Boost_INCLUDE_DIRS})
 file(GLOB TEST_SRC RELATIVE ${PROJECT_SOURCE_DIR} *.cpp)
 
 set(LNS_SRCS 
-${PROJECT_SOURCE_DIR}/../implicant.h
-${PROJECT_SOURCE_DIR}/../implicant.cpp
+${PROJECT_SOURCE_DIR}/../string_implicant.h
+${PROJECT_SOURCE_DIR}/../string_implicant.cpp
+${PROJECT_SOURCE_DIR}/../qm.h
 )
 
 # Run through each source

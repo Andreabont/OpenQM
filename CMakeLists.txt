@@ -4,7 +4,7 @@ project(OpenQM)
 # Project settings
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
 # Find boost::program_options
 find_package(Boost COMPONENTS program_options REQUIRED)
@@ -14,18 +14,19 @@ include_directories (${Boost_INCLUDE_DIRS})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -Weffc++") 
 
 # Enable test
-#enable_testing()
-#add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
 
 # Source
-set(LNS_SRCS 
-${PROJECT_SOURCE_DIR}/implicant.h
-${PROJECT_SOURCE_DIR}/implicant.cpp
+set(LNS_SRCS
 ${PROJECT_SOURCE_DIR}/qm.h
-${PROJECT_SOURCE_DIR}/qm.cpp
+${PROJECT_SOURCE_DIR}/string_implicant.h
+${PROJECT_SOURCE_DIR}/string_implicant.cpp
 ${PROJECT_SOURCE_DIR}/main.cpp
 ${PROJECT_SOURCE_DIR}/utils.h
 ${PROJECT_SOURCE_DIR}/utils.cpp
+${PROJECT_SOURCE_DIR}/vector_bool_implicant.cpp
+${PROJECT_SOURCE_DIR}/vector_bool_implicant.h
 )
 
 add_executable(OpenQM ${LNS_SRCS})

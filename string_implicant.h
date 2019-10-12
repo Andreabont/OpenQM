@@ -25,4 +25,34 @@
  * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * - * -
  */
 
+#ifndef STRING_IMPLICANT_H
+#define STRING_IMPLICANT_H
 
+#include <string>
+#include <vector>
+#include <set>
+#include <cmath>
+
+class StringImplicant {
+    std::string implicant_str;
+    void init(const std::string& other);
+public:
+    StringImplicant(const std::string &str);
+    StringImplicant(const char *other_str);
+    StringImplicant& operator=(const  std::string& other);
+    StringImplicant& operator=(const StringImplicant& other);
+    StringImplicant operator*(const StringImplicant& other);
+    bool operator!=(const StringImplicant& other) const;
+    bool operator<(const StringImplicant& other) const;
+    bool trivial() const;
+    std::string getStr() const;
+    int num_ones() const;
+    int rank() const;
+    friend bool operator==(const StringImplicant&, const StringImplicant&);
+    bool operator()(const StringImplicant &x) const;
+    size_t size() const;
+};
+
+std::ostream &operator<<(std::ostream &os, const StringImplicant& other);
+
+#endif // STRING_IMPLICANT_H
