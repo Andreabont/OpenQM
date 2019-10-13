@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <sstream>
+#include <cmath>
 #include "implicant.h"
 
 /**
