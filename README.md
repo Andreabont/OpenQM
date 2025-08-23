@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This repository is migrated [here](https://git.andreabont.it/andreabont/OpenQM).
+
 OpenQM is a implementation of [Quine–McCluskey algorithm](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) focused on usability, relased under GNU GPLv3 license. It provide a library to integrate the algorithm in other prjects and a simple CLI executable.
 
 Build
